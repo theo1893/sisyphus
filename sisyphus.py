@@ -123,7 +123,7 @@ def gen_sisyphus(max_step=25) -> Sisyphus:
 def initialize():
     # Remove default logger to customize it
     logger.remove()
-    
+
     # Add human-friendly logger with colors and better formatting
     logger.add(
         lambda msg: print(msg, end=""),  # Output to console
@@ -133,7 +133,7 @@ def initialize():
         backtrace=True,
         diagnose=True
     )
-    
+
     # Also add a file logger for debugging (without colors)
     logger.add(
         "sisyphus.log",
@@ -146,25 +146,29 @@ def initialize():
 
     browser.initialize()
     file.initialize()
-    data_provider.initialize()
     misc.initialize()
     shell.initialize()
     task.initialize()
-    web_search.initialize()
+
+    if os.getenv("RAPID_API_KEY"):
+        data_provider.initialize()
+
+    if os.getenv("TAVILY_API_KEY"):
+        web_search.initialize()
 
 
 if __name__ == "__main__":
     initialize()
-    
+
     # Check if query is provided as command line arguments
     if len(sys.argv) < 2:
         logger.error("Usage: python sisyphus.py <query>")
         logger.info("Example: python sisyphus.py 'What is the weather today?'")
         sys.exit(1)
-    
+
     # Join all arguments after the script name as the query
     query = " ".join(sys.argv[1:])
     logger.info(f"Received query: {query}")
-    
+
     sisyphus = gen_sisyphus(max_step=100)
     sisyphus(query)
